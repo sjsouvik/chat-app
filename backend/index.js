@@ -2,11 +2,18 @@ const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+const { isLoggedIn } = require("./controllers/auth");
+const authRoutes = require("./routes/auth");
+
 const app = express();
 
 app.get("/", (req, res) => {
   res.send("Welcome to API of chat app");
 });
+
+app.use("/api/v1", authRoutes);
+
+app.use(isLoggedIn);
 
 const connectionString = process.env.DB_CONNECTION_STRING;
 mongoose
