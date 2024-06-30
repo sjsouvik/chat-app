@@ -5,6 +5,7 @@ require("dotenv").config();
 const { isLoggedIn } = require("./controllers/auth");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
+const messageRoutes = require("./routes/message");
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,17 @@ app.use("/api/v1", authRoutes);
 
 app.use(isLoggedIn);
 app.use("/api/v1/chat", chatRoutes);
+app.use("/api/v1/message", messageRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ message: "Couldn't find this route on server" });
+});
+
+app.use((req, res, next, error) => {
+  res
+    .status(500)
+    .json({ message: "Error Occured", errorMessage: error.message });
+});
 
 const connectionString = process.env.DB_CONNECTION_STRING;
 mongoose

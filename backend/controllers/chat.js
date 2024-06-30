@@ -11,7 +11,9 @@ exports.accessChat = async (req, res) => {
       .json({ error: "UserId param not sent with the request" });
   }
 
-  let isChat = await Chat.find({
+  //TODO: add validation to check whether the given userId exists or not before finding or creating a new chat using that given userId
+
+  let chat = await Chat.findOne({
     isGroupChat: false,
     $and: [
       { users: { $elemMatch: { $eq: req.user._id } } },
@@ -21,8 +23,13 @@ exports.accessChat = async (req, res) => {
     .populate("users")
     .populate("latestMessage");
 
-  if (isChat.length > 0) {
-    return res.send(isChat[0]);
+  chat = await User.populate(chat, {
+    path: "latestMessage.sender",
+    select: "firstName lastName email",
+  });
+
+  if (chat) {
+    return res.send(chat);
   }
 
   const chatData = {
@@ -34,8 +41,7 @@ exports.accessChat = async (req, res) => {
   try {
     const createdChat = await Chat.create(chatData);
     const fullChat = await Chat.findOne({ _id: createdChat._id }).populate(
-      "users",
-      "-password"
+      "users"
     );
     res.status(200).json(fullChat);
   } catch (error) {
@@ -54,7 +60,7 @@ exports.fetchChats = async (req, res) => {
       .then(async (results) => {
         results = await User.populate(results, {
           path: "latestMessage.sender",
-          select: "name pic email",
+          select: "firstName lastName email",
         });
         res.status(200).send(results);
       });
