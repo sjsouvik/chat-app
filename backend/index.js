@@ -6,6 +6,7 @@ const { isLoggedIn } = require("./controllers/auth");
 const authRoutes = require("./routes/auth");
 
 const app = express();
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Welcome to API of chat app");
