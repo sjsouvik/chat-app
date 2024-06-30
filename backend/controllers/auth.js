@@ -86,11 +86,11 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.isLoggedIn = (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(token, process.env.SECRET);
-
+    req.user = await User.findById(decoded.userId);
     next();
   } catch (error) {
     res.status(401).json({ error: "Unauthorized access, please login" });
