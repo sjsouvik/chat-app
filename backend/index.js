@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
+const cors = require("cors");
 
 const { isLoggedIn } = require("./controllers/auth");
 const authRoutes = require("./routes/auth");
@@ -8,6 +9,7 @@ const chatRoutes = require("./routes/chat");
 const messageRoutes = require("./routes/message");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
