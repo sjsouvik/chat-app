@@ -1,0 +1,100 @@
+.form {
+  width: 35%;
+  margin: auto;
+}
+
+.password {
+  position: relative;
+}
+
+.password-input {
+  padding-right: 4rem !important;
+}
+
+.show-password {
+  cursor: pointer;
+  position: absolute;
+  top: 0.9rem;
+  right: 4rem;
+}
+
+.btn {
+  outline: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+}
+
+.form-button {
+  width: 80%;
+  padding: 0.7rem;
+}
+
+.input-error {
+  color: red;
+  margin-top: 0;
+  font-size: 0.9rem;
+}
+
+@media only screen and (max-width: 1300px) {
+  .show-password {
+    right: 3rem;
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .show-password {
+    right: 2.5rem;
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  .form {
+    width: 60%;
+  }
+
+  .show-password {
+    right: 3.5rem;
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  .form {
+    width: 70%;
+  }
+
+  .show-password {
+    right: 3.5rem;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .form {
+    width: 100%;
+  }
+
+  .show-password {
+    right: 3.5rem;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .show-password {
+    right: 2.75rem;
+  }
+}
+
+.link {
+  text-decoration: none;
+  color: var(--primary-color);
+}
