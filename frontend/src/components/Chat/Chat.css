@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #f0f0f0;
+  padding: 1rem;
+  cursor: pointer;
+}
+
+.mr-1 {
+  margin-right: 1rem;
+}
