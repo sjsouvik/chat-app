@@ -1,39 +1,73 @@
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../../providers";
+import { getOtherUserDetailsInChat } from "../../common/utils";
+import axios from "axios";
+
 import "./ChatDetails.css";
 
 export const ChatDetails = (props) => {
-  const { selectedChatId, chats, setChats } = props;
+  const {
+    selectedChat: { _id: selectedChatId, users },
+    setChats,
+  } = props;
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
+
+  const { authToken, authUser } = useAuth();
+
+  async function loadMessages() {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_BACKEND}/message/${selectedChatId}`,
+        { headers: { authorization: `Bearer ${authToken}` } }
+      );
+
+      setMessages(response.data);
+      scrollToBottom();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const scrollToBottom = () =>
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   useEffect(() => {
-    scrollToBottom();
-  }, [chats, selectedChatId]);
+    loadMessages();
+  }, []);
 
-  const sendMessage = () => {
-    const updatedChat = chats.map((chat) =>
-      chat.id === selectedChatId
-        ? {
-            ...chat,
-            messageList: [
-              ...chat.messageList,
-              {
-                messageId: crypto.randomUUID(),
-                message: newMessage,
-                sender: "USER",
-                messageType: "text",
-                timestamp: Date.now(),
-              },
-            ],
-          }
-        : chat
-    );
+  const sendMessage = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_BACKEND}/message/`,
+        { content: newMessage, chatId: selectedChatId },
+        { headers: { authorization: `Bearer ${authToken}` } }
+      );
+      if (response.status === 200) {
+        const message = {
+          _id: crypto.randomUUID(),
+          sender: { _id: authUser._id },
+          content: newMessage,
+          updatedAt: Date.now(),
+        };
 
-    setChats(updatedChat);
-    setNewMessage("");
+        setMessages((messages) => [...messages, message]);
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat._id === selectedChatId
+              ? {
+                  ...chat,
+                  latestMessage: { ...chat.latestMessage, content: newMessage },
+                }
+              : chat
+          )
+        );
+        setNewMessage("");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const messageInputKeydownHandler = (e) => {
@@ -42,26 +76,31 @@ export const ChatDetails = (props) => {
     }
   };
 
-  const selectedChat = chats.find((chat) => chat.id === selectedChatId);
-
   return (
     <div className="single-chat">
       <div className="single-chat-heading">
-        <img src={selectedChat.imageURL} alt="profile" height={50} width={50} />
-        <h2>{selectedChat.title}</h2>
+        <div className="avatar">
+          {getOtherUserDetailsInChat(
+            authUser,
+            users
+          ).firstName[0].toUpperCase()}
+        </div>
+        <h2>{getOtherUserDetailsInChat(authUser, users).firstName}</h2>
       </div>
 
       <ul className="message-container">
-        {selectedChat.messageList.map((textMessage) => (
+        {messages.map((textMessage) => (
           <li
             className={`message ${
-              textMessage.sender === "BOT" ? "bot-message" : "user-message"
+              textMessage.sender._id !== authUser._id
+                ? "bot-message"
+                : "user-message"
             }`}
-            key={textMessage.messageId}
+            key={textMessage._id}
           >
-            <div>{textMessage.message}</div>
+            <div>{textMessage.content}</div>
             <div className="message-time">
-              {new Date(textMessage.timestamp).toLocaleTimeString()}
+              {new Date(textMessage.updatedAt).toLocaleTimeString()}
             </div>
           </li>
         ))}

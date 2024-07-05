@@ -2,16 +2,20 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Chat, ChatDetails } from "../../components";
 import "./Chats.css";
+import { useAuth } from "../../providers";
 
 export const Chats = () => {
   const [chats, setChats] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
 
+  const { authToken } = useAuth();
+
   async function loadChats() {
     try {
       const response = await axios.get(
-        "https://my-json-server.typicode.com/codebuds-fk/chat/chats"
+        `${import.meta.env.VITE_APP_BACKEND}/chat`,
+        { headers: { authorization: `Bearer ${authToken}` } }
       );
 
       setChats(response.data);
@@ -27,12 +31,6 @@ export const Chats = () => {
   const changeSearchText = (e) => {
     setSearchText(e.target.value);
   };
-
-  const filteredChat = chats?.filter(
-    (chat) =>
-      chat?.title.toLowerCase().includes(searchText.toLowerCase()) ||
-      chat?.orderId.toLowerCase().includes(searchText.toLowerCase())
-  );
 
   return (
     <div className={selectedChat ? "list-container " : ""}>
@@ -51,9 +49,9 @@ export const Chats = () => {
           />
         </div>
         <ul className="chat-container">
-          {filteredChat?.map((chat) => (
+          {chats?.map((chat) => (
             <Chat
-              key={chat.id}
+              key={chat._id}
               {...chat}
               selectedChat={selectedChat}
               setSelectedChat={setSelectedChat}
@@ -62,11 +60,7 @@ export const Chats = () => {
         </ul>
       </div>
       {selectedChat && (
-        <ChatDetails
-          selectedChatId={selectedChat.id}
-          chats={chats}
-          setChats={setChats}
-        />
+        <ChatDetails selectedChat={selectedChat} setChats={setChats} />
       )}
     </div>
   );
