@@ -3,6 +3,8 @@ import axios from "axios";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useAuth } from "../../providers";
 
+import "./Autocomplete.css";
+
 export const Autocomplete = () => {
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -48,9 +50,7 @@ export const Autocomplete = () => {
 
   return (
     <div className="search-bar">
-      <label htmlFor="search" className="search-label">
-        Filter by Title / Order ID
-      </label>
+      <label htmlFor="search">Filter by Title / Order ID</label>
       <input
         id="search"
         type="search"

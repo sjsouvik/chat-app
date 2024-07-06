@@ -4,54 +4,10 @@
   position: relative;
 }
 
-.search-bar {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
-  background-color: white;
-  position: sticky;
-  top: 0;
-  text-align: left;
-  position: relative;
-}
-
 .chat-container {
   padding-inline-start: 0;
 }
 
-.search-box {
-  margin-bottom: 0.8rem;
-  padding: 0.5rem;
-  width: 100%;
-}
-
 .selected-chat {
   background-color: #f1f3f6;
-}
-
-.search-results {
-  position: absolute;
-  list-style: none;
-  padding: 0;
-  border: 1px solid #f1f1f1;
-  border-radius: 0.25rem;
-  width: 100%;
-  max-height: 15rem;
-  z-index: 1;
-  background-color: white;
-  margin-top: 0.25rem;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  overflow: auto;
-}
-
-.search-result {
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #f1f1f1;
-  cursor: pointer;
-}
-
-.search-result:last-child {
-  border: none;
-}
-
-.search-result:hover {
-  background-color: #f1f1f1;
 }
