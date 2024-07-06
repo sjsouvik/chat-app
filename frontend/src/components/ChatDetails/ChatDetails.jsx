@@ -18,12 +18,12 @@ export const ChatDetails = (props) => {
 
   async function loadMessages() {
     try {
-      const response = await axios.get(
+      const { data } = await axios.get(
         `${import.meta.env.VITE_APP_BACKEND}/message/${selectedChatId}`,
         { headers: { authorization: `Bearer ${authToken}` } }
       );
 
-      setMessages(response.data);
+      setMessages(data);
       scrollToBottom();
     } catch (error) {
       console.error(error);
@@ -34,14 +34,30 @@ export const ChatDetails = (props) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   useEffect(() => {
+    if (selectedChatId === "new") {
+      setMessages([]);
+      return;
+    }
+
     loadMessages();
-  }, []);
+  }, [selectedChatId]);
 
   const sendMessage = async () => {
     try {
+      let chatId = selectedChatId;
+      if (chatId === "new") {
+        const otherUser = getOtherUserDetailsInChat(authUser, users);
+        const { data } = await axios.post(
+          `${import.meta.env.VITE_APP_BACKEND}/chat/${otherUser._id}`,
+          {},
+          { headers: { authorization: `Bearer ${authToken}` } }
+        );
+        chatId = data._id;
+      }
+
       const response = await axios.post(
         `${import.meta.env.VITE_APP_BACKEND}/message/`,
-        { content: newMessage, chatId: selectedChatId },
+        { content: newMessage, chatId },
         { headers: { authorization: `Bearer ${authToken}` } }
       );
       if (response.status === 200) {
@@ -75,6 +91,10 @@ export const ChatDetails = (props) => {
       sendMessage();
     }
   };
+
+  if (!selectedChatId) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div className="single-chat">

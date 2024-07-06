@@ -12,7 +12,7 @@ export const Chat = (props) => {
       className={`container ${
         selectedChat?._id === _id ? "selected-chat" : ""
       }`}
-      onClick={() => setSelectedChat(props)}
+      onClick={() => setSelectedChat({ _id, users, latestMessage })}
     >
       <div className="mr-1">
         <div className="avatar">

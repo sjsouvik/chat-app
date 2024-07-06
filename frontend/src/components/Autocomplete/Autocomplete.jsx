@@ -5,12 +5,13 @@ import { useAuth } from "../../providers";
 
 import "./Autocomplete.css";
 
-export const Autocomplete = () => {
+export const Autocomplete = (props) => {
+  const { setSelectedChat } = props;
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const debounce = useDebounce();
 
-  const { authToken } = useAuth();
+  const { authToken, authUser } = useAuth();
 
   const loadSearchResults = async (searchText) => {
     try {
@@ -48,6 +49,22 @@ export const Autocomplete = () => {
     debouncedSearch(searchText);
   };
 
+  const selectSearchResult = async (selectedSearchResult) => {
+    const { data } = await axios.get(
+      `${import.meta.env.VITE_APP_BACKEND}/chat/${selectedSearchResult._id}`,
+      { headers: { authorization: `Bearer ${authToken}` } }
+    );
+
+    if (data) {
+      setSelectedChat(data);
+    } else {
+      setSelectedChat({ _id: "new", users: [selectedSearchResult, authUser] });
+    }
+
+    setSearchText("");
+    setSearchResults([]);
+  };
+
   return (
     <div className="search-bar">
       <label htmlFor="search">Filter by Title / Order ID</label>
@@ -65,7 +82,11 @@ export const Autocomplete = () => {
             const { _id, firstName, lastName } = searchResult;
 
             return (
-              <li className="search-result" key={_id}>
+              <li
+                className="search-result"
+                key={_id}
+                onClick={() => selectSearchResult(searchResult)}
+              >
                 {`${firstName} ${lastName}`}
               </li>
             );
