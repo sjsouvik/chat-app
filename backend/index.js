@@ -7,6 +7,7 @@ const { isLoggedIn } = require("./controllers/auth");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
 const messageRoutes = require("./routes/message");
+const userRoutes = require("./routes/user");
 
 const app = express();
 app.use(cors());
@@ -21,6 +22,7 @@ app.use("/api/v1", authRoutes);
 app.use(isLoggedIn);
 app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/message", messageRoutes);
+app.use("/api/v1/user", userRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Couldn't find this route on server" });
