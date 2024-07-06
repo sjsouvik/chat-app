@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Chat, ChatDetails } from "../../components";
+import { Chat, ChatDetails, Autocomplete } from "../../components";
 import "./Chats.css";
 import { useAuth } from "../../providers";
 
 export const Chats = () => {
   const [chats, setChats] = useState([]);
-  const [searchText, setSearchText] = useState("");
   const [selectedChat, setSelectedChat] = useState(null);
 
   const { authToken } = useAuth();
@@ -28,26 +27,10 @@ export const Chats = () => {
     loadChats();
   }, []);
 
-  const changeSearchText = (e) => {
-    setSearchText(e.target.value);
-  };
-
   return (
     <div className={selectedChat ? "list-container " : ""}>
       <div style={{ width: selectedChat ? "40%" : "100%", overflow: "auto" }}>
-        <div className="search-bar">
-          <label htmlFor="search" className="search-label">
-            Filter by Title / Order ID
-          </label>
-          <input
-            id="search"
-            type="search"
-            placeholder="Start typing to search"
-            onChange={changeSearchText}
-            value={searchText}
-            className="search-box"
-          />
-        </div>
+        <Autocomplete />
         <ul className="chat-container">
           {chats?.map((chat) => (
             <Chat
