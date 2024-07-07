@@ -13,6 +13,7 @@ export const ChatDetails = (props) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
+  const chatRef = useRef(selectedChatId);
 
   const { authToken, authUser } = useAuth();
 
@@ -44,20 +45,19 @@ export const ChatDetails = (props) => {
 
   const sendMessage = async () => {
     try {
-      let chatId = selectedChatId;
-      if (chatId === "new") {
+      if (chatRef.current === "new") {
         const otherUser = getOtherUserDetailsInChat(authUser, users);
         const { data } = await axios.post(
           `${import.meta.env.VITE_APP_BACKEND}/chat/${otherUser._id}`,
           {},
           { headers: { authorization: `Bearer ${authToken}` } }
         );
-        chatId = data._id;
+        chatRef.current = data._id;
       }
 
       const response = await axios.post(
         `${import.meta.env.VITE_APP_BACKEND}/message/`,
-        { content: newMessage, chatId },
+        { content: newMessage, chatId: chatRef.current },
         { headers: { authorization: `Bearer ${authToken}` } }
       );
       if (response.status === 200) {
