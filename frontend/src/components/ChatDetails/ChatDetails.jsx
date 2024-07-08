@@ -38,7 +38,9 @@ export const ChatDetails = (props) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   useEffect(() => {
-    socket = io(import.meta.env.VITE_APP_BACKEND_URI);
+    socket = io(import.meta.env.VITE_APP_BACKEND_URI, {
+      transports: ["websocket"],
+    });
     socket.emit("setup", authUser);
     socket.on("connected", () => setSocketConnected(true));
   }, []);

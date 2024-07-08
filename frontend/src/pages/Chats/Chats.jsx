@@ -29,7 +29,7 @@ export const Chats = () => {
 
   return (
     <div className={selectedChat ? "list-container " : ""}>
-      <div style={{ width: selectedChat ? "40%" : "100%", overflow: "auto" }}>
+      <div style={{ width: selectedChat ? "40%" : "100%" }}>
         <Autocomplete setSelectedChat={setSelectedChat} />
         <ul className="chat-container">
           {chats?.map((chat) => (
