@@ -49,6 +49,7 @@ const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
     origin: "https://chatsj.netlify.app/",
+    transports: ["websocket"],
   },
 });
 
