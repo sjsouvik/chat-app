@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../providers";
 import { getOtherUserDetailsInChat } from "../../common/utils";
 import axios from "axios";
+import io from "socket.io-client";
 
 import "./ChatDetails.css";
 
+let socket;
 export const ChatDetails = (props) => {
   const {
     selectedChat: { _id: selectedChatId, users },
@@ -12,6 +14,7 @@ export const ChatDetails = (props) => {
   } = props;
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
   const messagesEndRef = useRef(null);
   const chatRef = useRef(selectedChatId);
 
@@ -35,13 +38,48 @@ export const ChatDetails = (props) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   useEffect(() => {
+    socket = io(import.meta.env.VITE_APP_BACKEND_URI);
+    socket.emit("setup", authUser);
+    socket.on("connected", () => setSocketConnected(true));
+  }, []);
+
+  const onMessageReceived = (newMessage) => {
+    if (selectedChatId === newMessage.chat._id) {
+      setMessages((messages) => [...messages, newMessage]);
+      updateLatestMessage(newMessage.content);
+    }
+  };
+
+  useEffect(() => {
+    socket.on("messageReceived", onMessageReceived);
+
+    return () => {
+      socket.off("messageReceived", onMessageReceived);
+    };
+  }, [socket]);
+
+  useEffect(() => {
     if (selectedChatId === "new") {
       setMessages([]);
-      return;
+    } else {
+      loadMessages();
     }
 
-    loadMessages();
+    socket.emit("joinChat", selectedChatId);
   }, [selectedChatId]);
+
+  const updateLatestMessage = (message) => {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat._id === selectedChatId
+          ? {
+              ...chat,
+              latestMessage: { ...chat.latestMessage, content: message },
+            }
+          : chat
+      )
+    );
+  };
 
   const sendMessage = async () => {
     try {
@@ -61,24 +99,9 @@ export const ChatDetails = (props) => {
         { headers: { authorization: `Bearer ${authToken}` } }
       );
       if (response.status === 200) {
-        const message = {
-          _id: crypto.randomUUID(),
-          sender: { _id: authUser._id },
-          content: newMessage,
-          updatedAt: Date.now(),
-        };
-
-        setMessages((messages) => [...messages, message]);
-        setChats((prevChats) =>
-          prevChats.map((chat) =>
-            chat._id === selectedChatId
-              ? {
-                  ...chat,
-                  latestMessage: { ...chat.latestMessage, content: newMessage },
-                }
-              : chat
-          )
-        );
+        setMessages((messages) => [...messages, response.data]);
+        socket.emit("newMessageReceived", response.data);
+        updateLatestMessage(newMessage);
         setNewMessage("");
       }
     } catch (error) {
