@@ -41,6 +41,43 @@ mongoose
   .catch((error) => console.log("Couldn't connect to DB", error));
 
 const PORT = process.env.PORT || "8000";
-app.listen(PORT, () =>
+const server = app.listen(PORT, () =>
   console.log(`App is running at http://localhost:${PORT}`)
 );
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:5173",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("connected to socket.io");
+  socket.on("setup", (user) => {
+    socket.join(user._id);
+    socket.emit("connected");
+  });
+
+  socket.on("joinChat", (room) => {
+    socket.join(room);
+    console.log("user joined room:", room);
+  });
+
+  socket.on("newMessageReceived", (newMessage) => {
+    const { chat } = newMessage;
+
+    if (chat.users.length === 0) {
+      console.log("There's no users in this chat");
+      return;
+    }
+
+    chat.users.forEach((user) => {
+      if (user._id === newMessage.sender._id) {
+        return;
+      }
+
+      socket.in(user._id).emit("messageReceived", newMessage);
+    });
+  });
+});
