@@ -51,6 +51,7 @@ const io = require("socket.io")(server, {
     origin: "https://chatsj.netlify.app/",
     transports: ["websocket"],
   },
+  allowEIO3: true,
 });
 
 io.on("connection", (socket) => {
